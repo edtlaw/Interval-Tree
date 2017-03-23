@@ -42,7 +42,9 @@ public class IntervalTree {
 							getSortedEndPoints(intervalsLeft, intervalsRight);
 		
 		// build the tree nodes
+		
 		root = buildTreeNodes(sortedEndPoints);
+		
 		
 		// map intervals to the tree nodes
 		mapIntervalsToTree(intervalsLeft, intervalsRight);
@@ -180,28 +182,34 @@ public class IntervalTree {
 			IntervalTreeNode tmp = new IntervalTreeNode(val,val,val);
 			Q.enqueue(tmp);
 		}
+		/*
 		if(Q.size==1){
 			IntervalTreeNode T = Q.dequeue();
 			return T;
 		}
+		*/
 		while(Q.size!=1){
-		int temps = Q.size;
+			int temps = Q.size;
 			while(temps>1){
 				IntervalTreeNode T1 = Q.dequeue();
 				IntervalTreeNode T2 = Q.dequeue();
 				float v1 = T1.maxSplitValue;
 				float v2 = T2.minSplitValue;
 				float splitVal = (v1+v2)/2;
-				IntervalTreeNode N = new IntervalTreeNode(splitVal,v1,v2);
+				IntervalTreeNode N = new IntervalTreeNode(splitVal,T1.minSplitValue,T2.maxSplitValue);
 				N.leftChild = T1;
 				N.rightChild = T2;
+				System.out.println(N);
 				Q.enqueue(N);
 				temps = temps -2;
 			}
 			if(temps == 1){
-				Q.enqueue(Q.dequeue());
+				IntervalTreeNode tmp = Q.dequeue();
+				Q.enqueue(tmp);
 			}
 		}
+		IntervalTreeNode T = Q.dequeue();
+		return T;
 		
 		
 		
