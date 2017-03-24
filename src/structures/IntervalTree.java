@@ -180,6 +180,8 @@ public class IntervalTree {
 		for(int i = 0; i < endPoints.size(); i++){
 			float val = endPoints.get(i);
 			IntervalTreeNode tmp = new IntervalTreeNode(val,val,val);
+			tmp.leftIntervals = new ArrayList<Interval>(0);
+			tmp.rightIntervals = new ArrayList<Interval>(0);
 			Q.enqueue(tmp);
 		}
 		/*
@@ -197,6 +199,8 @@ public class IntervalTree {
 				float v2 = T2.minSplitValue;
 				float splitVal = (v1+v2)/2;
 				IntervalTreeNode N = new IntervalTreeNode(splitVal,T1.minSplitValue,T2.maxSplitValue);
+				N.leftIntervals = new ArrayList <Interval>(10);
+				N.rightIntervals = new ArrayList<Interval>(10);
 				N.leftChild = T1;
 				N.rightChild = T2;
 				System.out.println(N);
@@ -223,6 +227,54 @@ public class IntervalTree {
 	 */
 	public void mapIntervalsToTree(ArrayList<Interval> leftSortedIntervals, ArrayList<Interval> rightSortedIntervals) {
 		// COMPLETE THIS METHOD
+		Queue <IntervalTreeNode> levelOrder = new Queue <IntervalTreeNode>();
+		IntervalTreeNode tmp;
+		ArrayList<Interval> lSort = leftSortedIntervals;
+		ArrayList<Interval> rSort = rightSortedIntervals;
+		for(int i = 0; i<leftSortedIntervals.size(); i++){
+			levelOrder.enqueue(root);
+			do{
+				tmp = levelOrder.dequeue();
+				
+				Interval lSortItem = lSort.get(i);
+				Interval rSortItem = rSort.get(i);
+				float lSortLeft = (float)lSortItem.leftEndPoint;
+				float lSortRight = (float)lSortItem.rightEndPoint;
+				float rSortLeft = (float)rSortItem.leftEndPoint;
+				float rSortRight = (float)rSortItem.rightEndPoint;
+				if (tmp.leftChild == null){
+					;
+				}
+				else{
+					levelOrder.enqueue(tmp.leftChild);
+				}
+				if(tmp.rightChild == null){
+					;
+				}
+				else{
+					levelOrder.enqueue(tmp.rightChild);
+				}
+				
+				if(tmp.splitValue>= lSortLeft && tmp.splitValue <= lSortRight){
+					tmp.leftIntervals.add(lSortItem);
+					
+					
+				}
+				if(tmp.splitValue>= rSortLeft && tmp.splitValue <= rSortRight){
+					tmp.rightIntervals.add(rSortItem);
+					
+				}
+				else 
+					continue;
+				
+				
+			}while(!levelOrder.isEmpty());
+		}
+		
+			
+			
+			
+		
 	}
 	
 	/**
@@ -234,6 +286,13 @@ public class IntervalTree {
 	public ArrayList<Interval> findIntersectingIntervals(Interval q) {
 		// COMPLETE THIS METHOD
 		// THE FOLLOWING LINE HAS BEEN ADDED TO MAKE THE PROGRAM COMPILE
+		ArrayList <Interval> resultList = new ArrayList<Interval>(0);
+		IntervalTreeNode tmp = root;
+		float splitVal = tmp.splitValue;
+		ArrayList LList = tmp.leftIntervals;
+		ArrayList RList = tmp.rightIntervals;
+		IntervalTreeNode Lsub = tmp.leftChild;
+		IntervalTreeNode Rsub = tmp.rightChild;
 		return null;
 	}
 
