@@ -96,11 +96,11 @@ public class IntervalTree {
 			}
 			
 		}
-		/*
-		for(int x = 0; x <size; x++){
-			System.out.println(intervals.get(x));
-		}
-		*/
+		
+		//for(int x = 0; x <size; x++){
+		//	System.out.print(intervals.get(x));
+		//}
+		
 		
 	}
 	
@@ -159,7 +159,7 @@ public class IntervalTree {
 				}
 			}
 		}
-		System.out.println(allSorted);
+		//System.out.println(allSorted);
 		return allSorted;
 		
 		
@@ -203,7 +203,7 @@ public class IntervalTree {
 				N.rightIntervals = new ArrayList<Interval>(10);
 				N.leftChild = T1;
 				N.rightChild = T2;
-				System.out.println(N);
+				//System.out.println(N);
 				Q.enqueue(N);
 				temps = temps -2;
 			}
@@ -225,6 +225,7 @@ public class IntervalTree {
 	 * @param leftSortedIntervals Array list of intervals sorted according to left endpoints
 	 * @param rightSortedIntervals Array list of intervals sorted according to right endpoints
 	 */
+	
 	public void mapIntervalsToTree(ArrayList<Interval> leftSortedIntervals, ArrayList<Interval> rightSortedIntervals) {
 		// COMPLETE THIS METHOD
 		Queue <IntervalTreeNode> levelOrder = new Queue <IntervalTreeNode>();
@@ -232,16 +233,12 @@ public class IntervalTree {
 		ArrayList<Interval> lSort = leftSortedIntervals;
 		ArrayList<Interval> rSort = rightSortedIntervals;
 		for(int i = 0; i<leftSortedIntervals.size(); i++){
+			ArrayList<Interval> used = new ArrayList<Interval>();
 			levelOrder.enqueue(root);
 			do{
 				tmp = levelOrder.dequeue();
-				
 				Interval lSortItem = lSort.get(i);
-				Interval rSortItem = rSort.get(i);
-				float lSortLeft = (float)lSortItem.leftEndPoint;
-				float lSortRight = (float)lSortItem.rightEndPoint;
-				float rSortLeft = (float)rSortItem.leftEndPoint;
-				float rSortRight = (float)rSortItem.rightEndPoint;
+				
 				if (tmp.leftChild == null){
 					;
 				}
@@ -255,13 +252,15 @@ public class IntervalTree {
 					levelOrder.enqueue(tmp.rightChild);
 				}
 				
-				if(tmp.splitValue>= lSortLeft && tmp.splitValue <= lSortRight){
-					tmp.leftIntervals.add(lSortItem);
+				if(lSortItem.contains(tmp.splitValue)){
+					if(used.contains(lSortItem)){
+						continue;
+					}
+					else{
+						used.add(lSortItem);
+						tmp.leftIntervals.add(lSortItem);
+					}
 					
-					
-				}
-				if(tmp.splitValue>= rSortLeft && tmp.splitValue <= rSortRight){
-					tmp.rightIntervals.add(rSortItem);
 					
 				}
 				else 
@@ -270,7 +269,62 @@ public class IntervalTree {
 				
 			}while(!levelOrder.isEmpty());
 		}
-		
+		for(int i = 0; i<rightSortedIntervals.size(); i++){
+			ArrayList<Interval> used = new ArrayList<Interval>();
+			levelOrder.enqueue(root);
+			do{
+				tmp = levelOrder.dequeue();
+				Interval rSortItem = rSort.get(i);
+				
+				if (tmp.leftChild == null){
+					;
+				}
+				else{
+					levelOrder.enqueue(tmp.leftChild);
+				}
+				if(tmp.rightChild == null){
+					;
+				}
+				else{
+					levelOrder.enqueue(tmp.rightChild);
+				}
+				
+				if(rSortItem.contains(tmp.splitValue)){
+					if(used.contains(rSortItem)){
+						continue;
+					}
+					else{
+						used.add(rSortItem);
+						tmp.rightIntervals.add(rSortItem);
+					}
+					
+				}
+				else 
+					continue;
+				
+				
+			}while(!levelOrder.isEmpty());
+		}
+		levelOrder.enqueue(root);
+		/*
+		do{
+			tmp = levelOrder.dequeue();
+			System.out.println(tmp.toString());
+			if (tmp.leftChild == null){
+				;
+			}
+			else{
+				levelOrder.enqueue(tmp.leftChild);
+			}
+			if(tmp.rightChild == null){
+				;
+			}
+			else{
+				levelOrder.enqueue(tmp.rightChild);
+			}
+			
+		}while(!levelOrder.isEmpty());
+		*/
 			
 			
 			
@@ -286,15 +340,43 @@ public class IntervalTree {
 	public ArrayList<Interval> findIntersectingIntervals(Interval q) {
 		// COMPLETE THIS METHOD
 		// THE FOLLOWING LINE HAS BEEN ADDED TO MAKE THE PROGRAM COMPILE
-		ArrayList <Interval> resultList = new ArrayList<Interval>(0);
-		IntervalTreeNode tmp = root;
-		float splitVal = tmp.splitValue;
-		ArrayList LList = tmp.leftIntervals;
-		ArrayList RList = tmp.rightIntervals;
-		IntervalTreeNode Lsub = tmp.leftChild;
-		IntervalTreeNode Rsub = tmp.rightChild;
-		return null;
+		return Query(root, q);
+		
+	}
+	private ArrayList<Interval> Query(IntervalTreeNode node , Interval q){
+		ArrayList <Interval> resultList = new ArrayList<Interval>();
+		
+		float splitVal = node.splitValue;
+		ArrayList <Interval> LList = node.leftIntervals;
+		ArrayList <Interval> RList = node.rightIntervals;
+		IntervalTreeNode Lsub = node.leftChild;
+		IntervalTreeNode Rsub = node.rightChild;
+		if(Lsub == null && Rsub == null){
+			return resultList;
+		}
+		if(q.contains(node.splitValue)){
+			resultList.addAll(LList);
+			resultList.addAll(Query(Rsub, q));
+			resultList.addAll(Query(Lsub, q));
+		}
+		else if(splitVal < (float)q.leftEndPoint){
+			int i = RList.size() - 1;
+			while(i>=0 && RList.get(i).intersects(q)){
+				resultList.add(RList.get(i));
+				i--;
+			}
+			resultList.addAll(Query(Rsub, q));
+		}
+		else if(splitVal > (float)q.rightEndPoint){
+			int i = 0;
+			while(i<LList.size() && LList.get(i).intersects(q)){
+				resultList.add(LList.get(i));
+				i++;
+			}
+			resultList.addAll(Query(Lsub, q));
+		}
+		return resultList;
+		
 	}
 
 }
-
