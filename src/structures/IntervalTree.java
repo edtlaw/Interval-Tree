@@ -306,7 +306,7 @@ public class IntervalTree {
 			}while(!levelOrder.isEmpty());
 		}
 		levelOrder.enqueue(root);
-		/*
+		
 		do{
 			tmp = levelOrder.dequeue();
 			System.out.println(tmp.toString());
@@ -324,7 +324,7 @@ public class IntervalTree {
 			}
 			
 		}while(!levelOrder.isEmpty());
-		*/
+		
 			
 			
 			
